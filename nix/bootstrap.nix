@@ -95,7 +95,7 @@ rec {
       } // args);
       Init' = build { name = "Init"; deps = []; };
       Lean' = build { name = "Lean"; deps = [ Init' ]; };
-      Lake' = build { name = "lake"; deps = [ Init' Lean' ]; };
+      Lake' = build { name = "Lake"; deps = [ Init' Lean' ]; src = ../src/lake; fullSrc = ../src/lake/.; };
       attachSharedLib = sharedLib: pkg: pkg // {
         inherit sharedLib;
         mods = mapAttrs (_: m: m // { inherit sharedLib; propagatedLoadDynlibs = []; }) pkg.mods;
@@ -105,10 +105,10 @@ rec {
       Init = attachSharedLib leanshared Init';
       Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Init ]; };
       Lake = attachSharedLib leanshared Lake' // { allExternalDeps = [ Init Lean ]; };
-      stdlib = [ Init Lean Lake ];
+      stdlib = [ Init Lean ];
       modDepsFiles = symlinkJoin { name = "modDepsFiles"; paths = map (l: l.modDepsFile) (stdlib ++ [ Leanc ]); };
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
-      extlib = stdlib;  # TODO: add Lake
+      extlib = stdlib ++ [ Lake ];  # TODO: add Lake
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; roots = [ "Leanc" ]; };
       stdlibLinkFlags = "-L${Init.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
