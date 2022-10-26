@@ -19,7 +19,7 @@ rec {
     cmakeFlags = (args.cmakeFlags or [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" "-DUSE_GITHASH=OFF" ]) ++ (args.extraCMakeFlags or extraCMakeFlags) ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
     preConfigure = args.preConfigure or "" + ''
       # ignore absence of submodule
-      sed -i 's!lake/Lake.lean!!' CMakeLists.txt
+      # sed -i 's!lake/Lake.lean!!' CMakeLists.txt
     '';
   });
   lean-bin-tools-unwrapped = buildCMake {
@@ -95,7 +95,7 @@ rec {
       } // args);
       Init' = build { name = "Init"; deps = []; };
       Lean' = build { name = "Lean"; deps = [ Init' ]; };
-      Lake' = build { name = "Lake"; deps = [ Init' Lean' ]; src = ../src/lake; fullSrc = ../src/lake/.; };
+      Lake' = build { name = "Lake"; deps = [ Init' Lean' ]; src = ../src/lake; };
       attachSharedLib = sharedLib: pkg: pkg // {
         inherit sharedLib;
         mods = mapAttrs (_: m: m // { inherit sharedLib; propagatedLoadDynlibs = []; }) pkg.mods;
