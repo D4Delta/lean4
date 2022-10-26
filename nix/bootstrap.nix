@@ -95,6 +95,7 @@ rec {
       } // args);
       Init' = build { name = "Init"; deps = []; };
       Lean' = build { name = "Lean"; deps = [ Init' ]; };
+      Lake' = build { name = "lake"; deps = [ Init' Lean' ]; };
       attachSharedLib = sharedLib: pkg: pkg // {
         inherit sharedLib;
         mods = mapAttrs (_: m: m // { inherit sharedLib; propagatedLoadDynlibs = []; }) pkg.mods;
@@ -103,7 +104,8 @@ rec {
       inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
       Init = attachSharedLib leanshared Init';
       Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Init ]; };
-      stdlib = [ Init Lean ];
+      Lake = attachSharedLib leanshared Lake' // { allExternalDeps = [ Init Lean ]; };
+      stdlib = [ Init Lean Lake ];
       modDepsFiles = symlinkJoin { name = "modDepsFiles"; paths = map (l: l.modDepsFile) (stdlib ++ [ Leanc ]); };
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       extlib = stdlib;  # TODO: add Lake
