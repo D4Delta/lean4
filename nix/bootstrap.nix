@@ -93,9 +93,13 @@ rec {
         srcPrefix = "src";
         inherit debug;
       } // args);
+
+      
+
+
       Init' = build { name = "Init"; deps = []; };
       Lean' = build { name = "Lean"; deps = [ Init' ]; };
-      Lake' = build { name = "Lake"; deps = [ Init' Lean' ]; src = ../src/lake; };
+      Lake' = build { name = "Lake"; deps = [ Init' Lean' ]; src = ../src/lake; fullSrc = ../src/lake/.; };
       attachSharedLib = sharedLib: pkg: pkg // {
         inherit sharedLib;
         mods = mapAttrs (_: m: m // { inherit sharedLib; propagatedLoadDynlibs = []; }) pkg.mods;
